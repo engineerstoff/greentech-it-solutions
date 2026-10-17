@@ -1,0 +1,53 @@
+name: Deploy GreenTech IT Solutions to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Rebuild website image assets
+        shell: bash
+        run: |
+          set -e
+          mkdir -p images
+          tr -d '\n\r ' < assets-data/hero.b64 | base64 -d > images/hero.webp
+          tr -d '\n\r ' < assets-data/ceo.00.b64 | base64 -d > images/ceo.webp
+          tr -d '\n\r ' < assets-data/team.b64 | base64 -d > images/team.webp
+          tr -d '\n\r ' < assets-data/collage.b64 | base64 -d > images/collage.webp
+          touch .nojekyll
+          file images/*.webp
+          ls -lh images
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy website
+        id: deployment
+        uses: actions/deploy-pages@v4
