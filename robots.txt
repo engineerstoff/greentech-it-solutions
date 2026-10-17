@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://engineerstoff.github.io/greentech-it-solutions/sitemap.xml
